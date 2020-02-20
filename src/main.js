@@ -3,7 +3,11 @@ import App from './App.vue'
 import router from './router'
 import './plugins/element.js'
 import './assets/css/global.css'
-
+import axios from 'axios'
+// 导入并挂载axios
+Vue.prototype.$axios = axios
+// 配置请求根路径
+axios.defaults.baseURL = 'https://www.liulongbin.top:8888/api/private/v1/'
 Vue.config.productionTip = false
 
 new Vue({
