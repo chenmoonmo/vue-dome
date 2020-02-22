@@ -2,9 +2,9 @@
 
 在eslintrc.js中配置以启用模板字符串
 ```
- "quotes": [1, "single","allowTemplateLiterals":true }]  
+ "quotes": [1, "single","allowTemplateLiterals":true }]
+```  
 
- 
 ## Project setup
 ```
 npm install
