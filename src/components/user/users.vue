@@ -59,7 +59,7 @@
       ></el-pagination>
     </el-card>
     <!-- 添加用户弹框 -->
-    <el-dialog title="添加用户" :visible.sync="addDialogVisble" width="50%">
+    <el-dialog title="添加用户" @close="addDialogClosed" :visible.sync="addDialogVisble" width="50%">
       <!-- 内容主体区 -->
       <el-form label-width="70px" :model="addForm" :rules="addFormRules" ref="addFormRef">
         <el-form-item label="用户名" prop="username">
@@ -87,6 +87,24 @@
 <script>
 export default {
   data() {
+    // 自定义邮箱校验规则
+    const checkEmail = (rules, value, callback) => {
+      const regEmail = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
+      if (regEmail.test(value)) {
+        return callback()
+      } else {
+        callback(new Error('请输入合法的邮箱'))
+      }
+    }
+    // 自定义手机号校验规则
+    const checkMobile = (rules, value, callback) => {
+      const regMobile = /^1[3-9]\d{9}$/
+      if (regMobile.test(value)) {
+        return callback()
+      } else {
+        callback(new Error('请输入正确的手机号'))
+      }
+    }
     return {
       // 获取用户列表的数据对象
       queryInfo: {
@@ -127,8 +145,14 @@ export default {
             trigger: 'blur'
           }
         ],
-        email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
-        mobile: [{ required: true, message: '请输入邮箱', trigger: 'blur' }]
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { validator: checkEmail, trigger: 'blur' }
+        ],
+        mobile: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { validator: checkMobile, trigger: 'blur' }
+        ]
       }
     }
   },
@@ -166,6 +190,10 @@ export default {
         return this.$message.error('修改用户状态失败')
       }
       this.$message.success('修改用户状态成功')
+    },
+    // 监听添加用户对话框的关闭事件
+    addDialogClosed() {
+      this.$refs.addFormRef.resetFields()
     }
   }
 }
