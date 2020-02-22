@@ -11,12 +11,12 @@
       <!-- 搜索与添加区 -->
       <el-row :gutter="20">
         <el-col :span="7">
-          <el-input clearable  @clear="getUserList" placeholder="请输入内容" v-model="queryInfo.query">
+          <el-input clearable @clear="getUserList" placeholder="请输入内容" v-model="queryInfo.query">
             <el-button slot="append" icon="el-icon-search" @click="getUserList"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary">添加用户</el-button>
+          <el-button type="primary" @click="addDialogVisble = true">添加用户</el-button>
         </el-col>
       </el-row>
       <!-- 列表区 -->
@@ -58,6 +58,29 @@
         :total="total"
       ></el-pagination>
     </el-card>
+    <!-- 添加用户弹框 -->
+    <el-dialog title="添加用户" :visible.sync="addDialogVisble" width="50%">
+      <!-- 内容主体区 -->
+      <el-form label-width="70px" :model="addForm" :rules="addFormRules" ref="addFormRef">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="addForm.username"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="addForm.password" type="password"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="addForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机" prop="mobile">
+          <el-input v-model="addForm.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <!-- 底部按钮区域 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addDialogVisble = false">取 消</el-button>
+        <el-button type="primary" @click="addDialogVisble = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -74,7 +97,39 @@ export default {
         pagesize: 2
       },
       userList: [],
-      total: 0
+      total: 0,
+      // 控制用户添加对话框的显示和隐藏
+      addDialogVisble: false,
+      // 添加用户的表单数据
+      addForm: {
+        username: '',
+        password: '',
+        email: '',
+        mobile: ''
+      },
+      // 表单的验证规则
+      addFormRules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          {
+            min: 3,
+            max: 10,
+            message: '用户名的长度在3~10个字符之间',
+            trigger: 'blur'
+          }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          {
+            min: 6,
+            max: 15,
+            message: '密码的长度在6~15个字符之间',
+            trigger: 'blur'
+          }
+        ],
+        email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
+        mobile: [{ required: true, message: '请输入邮箱', trigger: 'blur' }]
+      }
     }
   },
   created() {
