@@ -32,9 +32,12 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="250px">
-          <template slot-scope>
-            <el-button type="primary" icon="el-icon-edit"></el-button>
-            <el-button type="danger" icon="el-icon-delete"></el-button>
+          <template slot-scope="scope">
+            <!-- 修改按钮 -->
+            <el-button type="primary" icon="el-icon-edit" @click="showEditDialog(scope.row.id)"></el-button>
+            <!-- 删除按钮 -->
+            <el-button type="danger" icon="el-icon-delete" @click="removeUserById(scope.row.id)"></el-button>
+            <!-- 设置角色 -->
             <el-tooltip
               :enterable="false"
               class="item"
@@ -79,6 +82,26 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="addDialogVisble = false">取 消</el-button>
         <el-button type="primary" @click="addUser">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 修改用户弹框 -->
+    <el-dialog title="修改用户" :visible.sync="editDialogVisble" width="50%" @close="editDialogClose">
+      <!-- 内容主体区 -->
+      <el-form label-width="70px" :model="editForm" :rules="editFormRules" ref="editFormRef">
+        <el-form-item label="用户名">
+          <el-input v-model="editForm.username" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机" prop="mobile">
+          <el-input v-model="editForm.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <!-- 底部按钮区域 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisble = false">取 消</el-button>
+        <el-button type="primary" @click="editUser">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -150,7 +173,22 @@ export default {
           { validator: checkEmail, trigger: 'blur' }
         ],
         mobile: [
+          { required: true, message: '请输入手机号码', trigger: 'blur' },
+          { validator: checkMobile, trigger: 'blur' }
+        ]
+      },
+      // 控制修改用户的弹框的显示和隐藏
+      editDialogVisble: false,
+      // 保存查询到的用户信息
+      editForm: {},
+      // 修改用户信息时的校验规则
+      editFormRules: {
+        email: [
           { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { validator: checkEmail, trigger: 'blur' }
+        ],
+        mobile: [
+          { required: true, message: '请输入手机号码', trigger: 'blur' },
           { validator: checkMobile, trigger: 'blur' }
         ]
       }
@@ -211,6 +249,61 @@ export default {
         // 重新载入用户列表
         this.getUserList()
       })
+    },
+    // 展示编辑用户信息对话框
+    async showEditDialog(id) {
+      // console.log(id)
+      const { data: res } = await this.$axios.get(`users/${id}`)
+      if (res.meta.status !== 200) {
+        return this.$message.error('查询用户信息失败')
+      }
+      // console.log(res.data)
+      this.editForm = res.data
+      this.editDialogVisble = true
+    },
+    // 监听修改用户对话框的关闭事件
+    editDialogClose() {
+      this.$refs.editFormRef.resetFields()
+    },
+    // 修改用户
+    editUser() {
+      // 表单预验证
+      this.$refs.editFormRef.validate(async valid => {
+        if (!valid) return false
+        // 发起axios请求
+        // console.log(this.editForm.id)
+        const { data: res } = await this.$axios.put(
+          'users/' + this.editForm.id,
+          {
+            email: this.editForm.email,
+            mobile: this.editForm.mobile
+          }
+        )
+        // console.log(res)
+        if (res.meta.status !== 200) {
+          return this.$message.error('修改用户信息失败')
+        }
+        this.$message.success('修改成功')
+        this.editDialogVisble = false
+        this.getUserList()
+      })
+    },
+    async removeUserById(id) {
+      const confirmRes = await this.$confirm('是否删除这条用户信息', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmRes !== 'confirm') {
+        return this.$message.info('取消删除')
+      }
+      // 删除用户axios
+      const { data: res } = await this.$axios.delete('users/' + id)
+      if (res.meta.status !== 200) {
+        return this.$message.error('删除失败')
+      }
+      this.$message.success('删除成功')
+      this.getUserList()
     }
   }
 }
