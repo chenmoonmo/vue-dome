@@ -11,8 +11,8 @@
       <!-- 搜索与添加区 -->
       <el-row :gutter="20">
         <el-col :span="7">
-          <el-input placeholder="请输入内容">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input clearable  @clear="getUserList" placeholder="请输入内容" v-model="queryInfo.query">
+            <el-button slot="append" icon="el-icon-search" @click="getUserList"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
@@ -51,9 +51,9 @@
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="querryInfo.pagenum"
+        :current-page="queryInfo.pagenum"
         :page-sizes="[1, 2, 5, 10]"
-        :page-size="querryInfo.pagesize"
+        :page-size="queryInfo.pagesize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
       ></el-pagination>
@@ -66,8 +66,8 @@ export default {
   data() {
     return {
       // 获取用户列表的数据对象
-      querryInfo: {
-        querry: '',
+      queryInfo: {
+        query: '',
         // 当前的页数
         pagenum: 1,
         // 当前每页显示多少条数据
@@ -83,7 +83,7 @@ export default {
   methods: {
     async getUserList() {
       const { data: res } = await this.$axios.get('users', {
-        params: this.querryInfo
+        params: this.queryInfo
       })
       if (res.meta.status !== 200) {
         return this.$message.error('用户数据获取失败')
@@ -93,19 +93,19 @@ export default {
     },
     // 监听pagesize大小改变的事件
     handleSizeChange(newsize) {
-      this.querryInfo.pagesize = newsize
+      this.queryInfo.pagesize = newsize
       this.getUserList()
     },
     // 监听页码值变化的事件
     handleCurrentChange(newpage) {
-      this.querryInfo.pagenum = newpage
+      this.queryInfo.pagenum = newpage
       this.getUserList()
     },
     // 监听switch开关 改变用户状态
     async stateChange(userinfo) {
-      console.log(userinfo)
-      const { data: res } = await this.$axios.put(`users/${userinfo.id}?state/${userinfo.mg_state}`)
-      console.log(res)
+      const { data: res } = await this.$axios.put(
+        `users/${userinfo.id}?state/${userinfo.mg_state}`
+      )
       if (res.meta.status !== 200) {
         userinfo.mg_state = !userinfo.mg_state
         return this.$message.error('修改用户状态失败')
