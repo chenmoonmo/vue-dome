@@ -28,7 +28,7 @@
         <el-table-column prop="role_name" label="角色"></el-table-column>
         <el-table-column prop="mg_state" label="状态">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.mg_state"></el-switch>
+            <el-switch v-model="scope.row.mg_state" @change="stateChange(scope.row)"></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="250px">
@@ -85,7 +85,6 @@ export default {
       const { data: res } = await this.$axios.get('users', {
         params: this.querryInfo
       })
-      console.log(res)
       if (res.meta.status !== 200) {
         return this.$message.error('用户数据获取失败')
       }
@@ -94,15 +93,24 @@ export default {
     },
     // 监听pagesize大小改变的事件
     handleSizeChange(newsize) {
-      console.log(newsize)
       this.querryInfo.pagesize = newsize
       this.getUserList()
     },
     // 监听页码值变化的事件
     handleCurrentChange(newpage) {
-      console.log(newpage)
       this.querryInfo.pagenum = newpage
       this.getUserList()
+    },
+    // 监听switch开关 改变用户状态
+    async stateChange(userinfo) {
+      console.log(userinfo)
+      const { data: res } = await this.$axios.put(`users/${userinfo.id}?state/${userinfo.mg_state}`)
+      console.log(res)
+      if (res.meta.status !== 200) {
+        userinfo.mg_state = !userinfo.mg_state
+        return this.$message.error('修改用户状态失败')
+      }
+      this.$message.success('修改用户状态成功')
     }
   }
 }
