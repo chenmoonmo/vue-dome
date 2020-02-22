@@ -35,12 +35,28 @@
           <template slot-scope>
             <el-button type="primary" icon="el-icon-edit"></el-button>
             <el-button type="danger" icon="el-icon-delete"></el-button>
-            <el-tooltip :enterable="false" class="item" effect="dark" content="设置角色" placement="top">
+            <el-tooltip
+              :enterable="false"
+              class="item"
+              effect="dark"
+              content="设置角色"
+              placement="top"
+            >
               <el-button type="warning" icon="el-icon-setting"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页区 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="querryInfo.pagenum"
+        :page-sizes="[1, 2, 5, 10]"
+        :page-size="querryInfo.pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
     </el-card>
   </div>
 </template>
@@ -52,7 +68,9 @@ export default {
       // 获取用户列表的数据对象
       querryInfo: {
         querry: '',
+        // 当前的页数
         pagenum: 1,
+        // 当前每页显示多少条数据
         pagesize: 2
       },
       userList: [],
@@ -73,6 +91,18 @@ export default {
       }
       this.userList = res.data.users
       this.total = res.data.total
+    },
+    // 监听pagesize大小改变的事件
+    handleSizeChange(newsize) {
+      console.log(newsize)
+      this.querryInfo.pagesize = newsize
+      this.getUserList()
+    },
+    // 监听页码值变化的事件
+    handleCurrentChange(newpage) {
+      console.log(newpage)
+      this.querryInfo.pagenum = newpage
+      this.getUserList()
     }
   }
 }
