@@ -198,12 +198,18 @@ export default {
     // 点击按钮添加新用户
     addUser() {
       // 表单预校验
-      this.$refs.addFormRef.validate(valid => {
+      this.$refs.addFormRef.validate(async valid => {
         if (!valid) return false
-        console.log(valid)
         // 发起axios添加用户
+        const { data: res } = await this.$axios.post('users', this.addForm)
+        if (res.meta.status !== 201) {
+          this.$message.error('添加用户失败')
+        }
+        this.$message.success('添加用户成功')
         // 关闭弹框
         this.addDialogVisble = false
+        // 重新载入用户列表
+        this.getUserList()
       })
     }
   }
