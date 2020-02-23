@@ -36,7 +36,7 @@
               size="mini"
               type="danger"
               icon="el-icon-delete"
-              @click="removeUserById(scope.row.id)"
+              @click="removeRoleById(scope.row.id)"
             >删除</el-button>
             <!-- 设置角色 -->
             <el-button size="mini" type="warning" icon="el-icon-setting">分配权限</el-button>
@@ -177,7 +177,8 @@ export default {
     // 发起编辑角色请求
     async editRole(id) {
       const { data: res } = await this.$axios.put(
-        'roles/' + this.editForm.roleId, this.editForm
+        'roles/' + this.editForm.roleId,
+        this.editForm
       )
       console.log(res)
       if (res.meta.status !== 200) {
@@ -185,6 +186,25 @@ export default {
       }
       this.$message.success('编辑成功')
       this.editRoleDialogVisible = false
+      this.getRolesList()
+    },
+    // 删除角色
+    async removeRoleById(id) {
+      // 弹出确认框
+      const confirmRes = await this.$confirm('是否删除这条角色信息', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      if (confirmRes !== 'confirm') {
+        return this.$message.info('取消删除')
+      }
+      // 发起删除请求
+      const { data: res } = await this.$axios.delete('roles/' + id)
+      if (res.meta.status !== 200) {
+        return this.$message.error('删除失败')
+      }
+      this.$message.success('删除成功')
       this.getRolesList()
     }
   }
