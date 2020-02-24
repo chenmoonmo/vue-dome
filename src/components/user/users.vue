@@ -256,9 +256,11 @@ export default {
     },
     // 监听switch开关 改变用户状态
     async stateChange(userinfo) {
+      // console.log(userinfo.mg_state)
       const { data: res } = await this.$axios.put(
         `users/${userinfo.id}?state/${userinfo.mg_state}`
       )
+      // console.log(res)
       if (res.meta.status !== 200) {
         userinfo.mg_state = !userinfo.mg_state
         return this.$message.error('修改用户状态失败')
